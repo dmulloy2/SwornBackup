@@ -1,0 +1,4 @@
+debug: false
+
+#Plugins that you want SwornBackup to backup:
+backupPlugins: [SwornNations]

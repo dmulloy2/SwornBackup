@@ -1,0 +1,5 @@
+name: SwornBackup
+main: net.dmulloy2.swornbackup.SwornBackup
+version: "${project.version}"
+author: dmulloy2
+description: Automatically backs up plugins every night
