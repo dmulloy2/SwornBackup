@@ -3,6 +3,12 @@
  */
 package net.dmulloy2.swornbackup;
 
+import static java.util.Calendar.DAY_OF_MONTH;
+import static java.util.Calendar.DAY_OF_WEEK;
+import static java.util.Calendar.DAY_OF_YEAR;
+import static java.util.Calendar.MONTH;
+import static java.util.Calendar.YEAR;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -40,7 +46,7 @@ public class BackupHandler {
 		this.backupFolder = new File(plugin.getConfig().getString("backupFolder"));
 
 		Calendar cal = Calendar.getInstance();
-		String date = cal.get(Calendar.MONTH) + "-" + cal.get(Calendar.DAY_OF_MONTH) + "-" + cal.get(Calendar.YEAR);
+		String date = cal.get(MONTH) + "-" + cal.get(DAY_OF_MONTH) + "-" + cal.get(YEAR);
 		this.datedFolder = new File(backupFolder, date);
 		this.datedFolder.mkdirs();
 	}
@@ -61,6 +67,8 @@ public class BackupHandler {
 	}
 
 	private void makeBackup(Plugin plugin) {
+		plugin.getLogger().info(MessageFormat.format("Backing up plugin {0}...", plugin.getName()));
+
 		File backupFolder = new File(datedFolder, plugin.getName());
 		File dataFolder = plugin.getDataFolder();
 
@@ -68,7 +76,10 @@ public class BackupHandler {
 			zip(dataFolder, new File(backupFolder + ".zip"));
 		} catch (Throwable ex) {
 			plugin.getLogger().info(MessageFormat.format("Could not backup {0}: {1}", plugin.getName(), ex));
+			return;
 		}
+
+		plugin.getLogger().info(MessageFormat.format("{0} successfully backed up.", plugin.getName()));
 	}
 
 	private void cleanBackups() {
@@ -77,12 +88,12 @@ public class BackupHandler {
 			String[] date = folder.split("-");
 
 			try {
-				cal.set(Calendar.YEAR, Integer.parseInt(date[0]), Integer.parseInt(date[1]));
+				cal.set(YEAR, Integer.parseInt(date[0]), Integer.parseInt(date[1]));
 			} catch (NumberFormatException ex) {
 				plugin.getLogger().log(Level.WARNING, "Failed to determine date of backup " + folder, ex);
 			}
 
-			if ((cal.get(6) % 7 != 2) && (Calendar.getInstance().get(Calendar.DAY_OF_YEAR) - cal.get(Calendar.DAY_OF_WEEK) > 7))
+			if ((cal.get(DAY_OF_YEAR) % 7 != 2) && (Calendar.getInstance().get(DAY_OF_YEAR) - cal.get(DAY_OF_WEEK) > 7))
 				deleteTree(new File(backupFolder, folder));
 		}
 	}
