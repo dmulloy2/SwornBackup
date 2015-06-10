@@ -46,7 +46,8 @@ public class BackupHandler {
 		this.backupFolder = new File(plugin.getConfig().getString("backupFolder"));
 
 		Calendar cal = Calendar.getInstance();
-		String date = cal.get(MONTH) + "-" + cal.get(DAY_OF_MONTH) + "-" + cal.get(YEAR);
+		// Calendar#get(MONTH) is off by 1. Thank you, C.
+		String date = (cal.get(MONTH) + 1) + "-" + cal.get(DAY_OF_MONTH) + "-" + cal.get(YEAR);
 		this.datedFolder = new File(backupFolder, date);
 		this.datedFolder.mkdirs();
 	}
@@ -83,22 +84,34 @@ public class BackupHandler {
 	}
 
 	private void cleanBackups() {
-		for (String folder : backupFolder.list()) {
+		for (File folder : backupFolder.listFiles()) {
+			if (! folder.isDirectory()) {
+				continue;
+			}
+
+			String name = folder.getName();
 			Calendar cal = Calendar.getInstance();
-			String[] date = folder.split("-");
+			String[] date = name.split("-");
 
 			try {
-				cal.set(YEAR, Integer.parseInt(date[0]), Integer.parseInt(date[1]));
+				int month = Integer.parseInt(date[0]) - 1; // Correct our aesthetic fix
+				int day = Integer.parseInt(date[1]);
+				int year = Integer.parseInt(date[2]);
+				cal.set(year, month, day);
 			} catch (NumberFormatException ex) {
 				plugin.getLogger().log(Level.WARNING, "Failed to determine date of backup " + folder, ex);
 			}
 
 			if ((cal.get(DAY_OF_YEAR) % 7 != 2) && (Calendar.getInstance().get(DAY_OF_YEAR) - cal.get(DAY_OF_WEEK) > 7))
-				deleteTree(new File(backupFolder, folder));
+				deleteTree(folder);
 		}
 	}
 
 	private void deleteTree(File tree) {
+		if (tree == null) {
+			return;
+		}
+
 		for (File file : tree.listFiles()) {
 			if (file.isDirectory()) {
 				deleteTree(file);
