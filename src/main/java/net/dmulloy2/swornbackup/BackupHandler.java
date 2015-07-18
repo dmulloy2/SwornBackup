@@ -67,20 +67,20 @@ public class BackupHandler {
 		}
 	}
 
-	private void makeBackup(Plugin plugin) {
-		plugin.getLogger().info(MessageFormat.format("Backing up plugin {0}...", plugin.getName()));
+	private void makeBackup(Plugin backup) {
+		plugin.getLogger().info(MessageFormat.format("Backing up plugin {0}...", backup.getName()));
 
-		File backupFolder = new File(datedFolder, plugin.getName());
-		File dataFolder = plugin.getDataFolder();
+		File backupFolder = new File(datedFolder, backup.getName());
+		File dataFolder = backup.getDataFolder();
 
 		try {
 			zip(dataFolder, new File(backupFolder + ".zip"));
 		} catch (Throwable ex) {
-			plugin.getLogger().info(MessageFormat.format("Could not backup {0}: {1}", plugin.getName(), ex));
+			plugin.getLogger().info(MessageFormat.format("Could not backup {0}: {1}", backup.getName(), ex));
 			return;
 		}
 
-		plugin.getLogger().info(MessageFormat.format("{0} successfully backed up.", plugin.getName()));
+		plugin.getLogger().info(MessageFormat.format("{0} successfully backed up.", backup.getName()));
 	}
 
 	private void cleanBackups() {
